@@ -1846,6 +1846,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
 
 [[package]]
+name = "font8x8"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "875488b8711a968268c7cf5d139578713097ca4635a76044e8fe8eedf831d07e"
+
+[[package]]
 name = "foreign-types"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2896,6 +2902,15 @@ name = "itertools"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
 dependencies = [
  "either",
 ]
@@ -5838,6 +5853,7 @@ dependencies = [
  "tokio-tungstenite 0.30.0",
  "ts-rs",
  "tui-bar-graph",
+ "tui-big-text",
  "unicode-width",
  "url",
  "vergen",
@@ -6937,6 +6953,19 @@ dependencies = [
  "document-features",
  "ratatui-core",
  "strum 0.28.0",
+]
+
+[[package]]
+name = "tui-big-text"
+version = "0.8.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32cdc3e75f28ef4a8c14c1c1def76842507b8a9e8b5e1f4224bd732f42946a90"
+dependencies = [
+ "derive_builder",
+ "font8x8",
+ "itertools 0.15.0",
+ "ratatui-core",
+ "ratatui-widgets",
 ]
 
 [[package]]

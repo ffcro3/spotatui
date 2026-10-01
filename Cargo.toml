@@ -38,6 +38,7 @@ unicode-width = "0.2.2"
 backtrace = "0.3.76"
 crossterm = { version = "0.29", optional = true }
 tui-bar-graph = { version = "0.3.3", optional = true }
+tui-big-text = { version = "0.8.10", optional = true }
 # Optional because the headless build needs neither half of it: `tui` pulls it
 # for the banner gradient and visualizer, `art-decode` for the HSV math in
 # `core/cover_theme.rs`.
@@ -156,7 +157,7 @@ telemetry = []
 # The headless CI leg omits it, so any `crate::tui` import from core/infra/cli
 # is a compile error there - that is what keeps a second frontend from silently
 # re-coupling to the terminal one.
-tui = ["dep:ratatui", "dep:crossterm", "dep:tui-bar-graph", "dep:colorgrad"]
+tui = ["dep:ratatui", "dep:crossterm", "dep:tui-bar-graph", "dep:colorgrad", "dep:tui-big-text"]
 # The browser frontend: the loopback page server, `run_gui` and the
 # `spotatui-gui` bin shim (which claims the binary name and the Windows
 # console-attach plumbing).

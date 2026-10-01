@@ -6,9 +6,51 @@ use ratatui::{
   widgets::{Block, Borders, Paragraph},
   Frame,
 };
+use tui_big_text::{BigText, PixelSize};
 
 use super::player::draw_playbar;
 use crate::tui::theme::EmphasisExt;
+
+// HalfHeight and Quadrant glyphs are both 4 terminal rows tall; only their
+// width differs, so the active line's reserved vertical span stays constant.
+const BIG_LINE_ROWS: u16 = 4;
+const HALF_HEIGHT_COLS_PER_CHAR: usize = 8;
+const QUADRANT_COLS_PER_CHAR: usize = 4;
+
+/// Picks the widest big-text glyph size that fits `text` within `width`
+/// columns, or `None` if even the narrowest size would clip it.
+fn pick_pixel_size(text: &str, width: u16) -> Option<PixelSize> {
+  let chars = text.chars().count();
+  if chars == 0 {
+    return None;
+  }
+  let width = width as usize;
+  if chars.saturating_mul(HALF_HEIGHT_COLS_PER_CHAR) <= width {
+    Some(PixelSize::HalfHeight)
+  } else if chars.saturating_mul(QUADRANT_COLS_PER_CHAR) <= width {
+    Some(PixelSize::Quadrant)
+  } else {
+    None
+  }
+}
+
+/// Reserves a `BIG_LINE_ROWS`-tall band centered on `y`, or `None` if it
+/// would spill outside `lyric_area`.
+fn big_line_rect(lyric_area: Rect, y: i64) -> Option<Rect> {
+  let top = y - i64::from(BIG_LINE_ROWS / 2);
+  let bottom = top + i64::from(BIG_LINE_ROWS) - 1;
+  let area_top = i64::from(lyric_area.y);
+  let area_bottom = area_top + i64::from(lyric_area.height) - 1;
+  if top < area_top || bottom > area_bottom {
+    return None;
+  }
+  Some(Rect {
+    x: lyric_area.x,
+    y: top as u16,
+    width: lyric_area.width,
+    height: BIG_LINE_ROWS,
+  })
+}
 
 pub fn draw_lyrics_view(f: &mut Frame<'_>, app: &App) {
   let (content_area, playbar_area) = fullscreen_view_layout(&app.runtime_state, f.area());
@@ -84,6 +126,25 @@ fn draw_lyrics(f: &mut Frame<'_>, app: &App, area: Rect) {
 
   for (line_idx, (_, text)) in lyrics.iter().enumerate() {
     let y = target_row + (line_idx as f64 - scroll_offset).round() as i64;
+
+    if line_idx == active_idx && !manual {
+      if let Some(pixel_size) = pick_pixel_size(text, lyric_area.width) {
+        if let Some(big_rect) = big_line_rect(lyric_area, y) {
+          let style = Style::default()
+            .fg(theme.highlighted_lyrics.into())
+            .add_modifier(app.user_config.behavior.emphasis(Modifier::BOLD));
+          let big_text = BigText::builder()
+            .pixel_size(pixel_size)
+            .style(style)
+            .centered()
+            .lines(vec![text.as_str().into()])
+            .build();
+          f.render_widget(big_text, big_rect);
+          continue;
+        }
+      }
+    }
+
     if y < i64::from(lyric_area.y) || y >= i64::from(lyric_area.y) + i64::from(lyric_area.height) {
       continue;
     }
